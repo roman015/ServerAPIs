@@ -28,8 +28,7 @@ namespace IdentityAPI
             Configuration = configuration;
 
             this.IdentitySettings = new ConfigurationBuilder()
-               .SetBasePath(configuration["IdentitySettingsFile"].ToString())
-               .AddJsonFile("IdentitySettings.json", optional: true, reloadOnChange: true)
+               .AddJsonFile(configuration["IdentitySettingsFile"].ToString(), optional: true, reloadOnChange: true)
                .Build();
         }
 
