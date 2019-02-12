@@ -16,6 +16,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using IdentityAPI.Helpers;
 using IdentityAPI.Services;
+using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace IdentityAPI
 {
@@ -66,7 +68,37 @@ namespace IdentityAPI
             // Services
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            // Repositories
+            services.AddScoped<IAccountRepository, AccountRepository>();
+
+            // Config File
+            services.AddSingleton<IConfiguration>(Configuration);
+
+            services.AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.Formatting = Formatting.Indented;
+                })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            // For Generating Swagger json
+            services.AddSwaggerGen(config =>
+            {
+                config.SwaggerDoc("api", new Info { Title = "Authentication", Version = "v1" });
+
+                config.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                config.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>()
+                {
+                    {"Bearer", new string[]{} }
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
