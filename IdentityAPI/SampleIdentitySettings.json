@@ -1,0 +1,9 @@
+{
+  "TokenKey": "SAMPLEVALUEHERE",
+
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=path/to/sqlitefile.db"
+  },
+
+  "AdminTOTPKey": "placeTOPTKeyHere"
+}
