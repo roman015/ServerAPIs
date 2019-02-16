@@ -110,7 +110,15 @@ namespace IdentityAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseAuthentication();
+
             app.UseMvc();
+
+            // For Generating Swagger json
+            app.UseSwagger(config =>
+            {
+                config.RouteTemplate = "Authenticate/{documentName}";
+            });
         }
     }
 }
