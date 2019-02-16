@@ -28,8 +28,11 @@ namespace IdentityAPI
             Configuration = configuration;
 
             this.IdentitySettings = new ConfigurationBuilder()
-               .AddJsonFile(configuration["IdentitySettingsFile"].ToString(), optional: true, reloadOnChange: true)
+               .AddJsonFile(configuration["IdentitySettingsFile"].ToString(), optional: false, reloadOnChange: true)
                .Build();
+
+            Console.WriteLine("IdentitySettings.json Found : " + this.IdentitySettings != null);
+            Console.WriteLine("IdentitySettings[ConnectionStrings:DefaultConnection] : " + this.IdentitySettings["ConnectionStrings:DefaultConnection"]);
         }
 
         public IConfiguration Configuration { get; }
