@@ -76,7 +76,7 @@ namespace IdentityAPI
             services.AddScoped<IAccountRepository, AccountRepository>();
 
             // Config File
-            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton<IConfiguration>(IdentitySettings);
 
             services.AddMvc()
                 .AddJsonOptions(options =>
