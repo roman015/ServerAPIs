@@ -18,6 +18,7 @@ using IdentityAPI.Helpers;
 using IdentityAPI.Services;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
+using System.IO;
 
 namespace IdentityAPI
 {
@@ -28,8 +29,9 @@ namespace IdentityAPI
             Configuration = configuration;
 
             this.IdentitySettings = new ConfigurationBuilder()
-               .AddJsonFile(configuration["IdentitySettingsFile"].ToString(), optional: false, reloadOnChange: true)
-               .Build();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(configuration["IdentitySettingsFile"].ToString(), optional: false, reloadOnChange: true)
+                .Build();
 
             Console.WriteLine("IdentitySettings.json Found : " + this.IdentitySettings != null);
             Console.WriteLine("IdentitySettings[ConnectionStrings:DefaultConnection] : " + this.IdentitySettings["ConnectionStrings:DefaultConnection"]);
