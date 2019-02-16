@@ -32,9 +32,6 @@ namespace IdentityAPI
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile(configuration["IdentitySettingsFile"].ToString(), optional: false, reloadOnChange: true)
                 .Build();
-
-            Console.WriteLine("IdentitySettings.json Found : " + this.IdentitySettings != null);
-            Console.WriteLine("IdentitySettings[ConnectionStrings:DefaultConnection] : " + this.IdentitySettings["ConnectionStrings:DefaultConnection"]);
         }
 
         public IConfiguration Configuration { get; }
@@ -85,24 +82,24 @@ namespace IdentityAPI
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            //// For Generating Swagger json
-            //services.AddSwaggerGen(config =>
-            //{
-            //    config.SwaggerDoc("api", new Info { Title = "Authentication", Version = "v1" });
+            // For Generating Swagger json
+            services.AddSwaggerGen(config =>
+            {
+                config.SwaggerDoc("api", new Info { Title = "Authentication", Version = "v1" });
 
-            //    config.AddSecurityDefinition("Bearer", new ApiKeyScheme
-            //    {
-            //        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-            //        Name = "Authorization",
-            //        In = "header",
-            //        Type = "apiKey"
-            //    });
+                config.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
 
-            //    config.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>()
-            //    {
-            //        {"Bearer", new string[]{} }
-            //    });
-            //});
+                config.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>()
+                {
+                    {"Bearer", new string[]{} }
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
