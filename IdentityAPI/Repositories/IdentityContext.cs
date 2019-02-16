@@ -24,7 +24,8 @@ namespace IdentityAPI.Repositories
 
             builder.Entity<Account>()
                 .HasOne(acc => acc.Details)
-                .WithOne();
+                .WithOne()
+                .HasForeignKey<AccountDetail>(accDet => accDet.UserID);
 
             base.OnModelCreating(builder);
         }
