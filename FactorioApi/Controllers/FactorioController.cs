@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FactorioApi.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FactorioApi.Controllers
@@ -10,26 +12,45 @@ namespace FactorioApi.Controllers
     [Route("Factorio")]
     [ApiController]
     public class FactorioController : ControllerBase
-    {        
+    {
+        private readonly IFactorioService factorioService;
+        public FactorioController(IFactorioService factorioService)
+        {
+            this.factorioService = factorioService;
+        }
+
         [Authorize]
         [HttpGet("Start")]
         public IActionResult StartGame()
         {
-            return Ok("Game has been started");
+            var result = factorioService.StartGame();
+
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    "Factorio Service Did not work, something is wrong");
+            }
         }
 
         [Authorize]
         [HttpGet("Stop")]
         public IActionResult StopGame()
         {
-            return Ok("Game has been stopped");
-        }
-    }
+            var result = factorioService.StopGame();
 
-    public class GameType
-    {
-        public string Status { get; set; }
-        public string Version { get; set; }
-        public string SaveFile { get; set; }
-    }
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Factorio Service Did not work, something is wrong");
+            }
+        }
+    }    
 }

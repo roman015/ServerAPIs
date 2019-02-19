@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FactorioApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,6 +39,11 @@ namespace FactorioApi
         {
             services.AddCors();
 
+            // Services
+            services.AddScoped<IFactorioService, FactorioService>();
+            FactorioService.Setup(Configuration);
+            services.AddSingleton<IConfiguration>(Configuration);
+
             // JWT Token Settings
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -60,7 +66,7 @@ namespace FactorioApi
                 {
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
 
             // For Generating Swagger json
             services.AddSwaggerGen(config =>
