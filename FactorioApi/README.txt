@@ -1,3 +1,3 @@
 ﻿Startup Instructions
 --------------------
-./Reload_Project.sh "FactorioAPI" "--port=6001" "git@github.com:roman015/ServerAPIs.git"
+./Reload_Project.sh "FactorioApi" "--port=6001" "git@github.com:roman015/ServerAPIs.git"
