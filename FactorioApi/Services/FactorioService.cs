@@ -207,7 +207,7 @@ namespace FactorioApi.Services
 
                     return new FactorioServiceResult()
                     {
-                        ServerStatus = "Started",
+                        ServerStatus = "Stopped",
                         FactorioVersion = "UNKNOWN",
                         LastSaveOn = LastAccessedOn
                     };
