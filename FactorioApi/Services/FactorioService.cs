@@ -152,7 +152,9 @@ namespace FactorioApi.Services
                         + configuration["ScriptDetails:Setup:StartServerCmd"]
                         );
 
-                    Console.WriteLine(result);
+                    Console.WriteLine("StartGame : "
+                        + Environment.NewLine
+                        + result);
 
                     return new FactorioServiceResult()
                     {
@@ -188,8 +190,10 @@ namespace FactorioApi.Services
                         + "; "
                         + configuration["ScriptDetails:Setup:StopServerCmd"]
                         );
-
-                    Console.WriteLine(result);
+                    
+                    Console.WriteLine("StopGame : " 
+                        + Environment.NewLine
+                        + result);
 
                     // Copy the save file back to storage
                     File.Copy(
