@@ -46,6 +46,7 @@ namespace FactorioApi.Services
 
         private static void SetupSshKeys(IConfiguration configuration)
         {
+#if USE_SSH_KEY_FROM_CONFIG
             // Copy the private key
             File.Copy(
                 sourceFileName:
@@ -69,6 +70,7 @@ namespace FactorioApi.Services
                     true);
 
             // TODO: Review if chmod is needed
+#endif
         }
 
         private static void SetupTfvars(IConfiguration configuration)
