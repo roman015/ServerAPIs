@@ -116,8 +116,8 @@ namespace FactorioApi.Services
 
                     // Get the server ip
                     string ServerIP = GetServerIpAddress();
-
-                    // Copy the save file from server to storage first
+                                        
+                    // Create the copy save command
                     string copySaveFileCmd = configuration["TerraformAwsSettings:ScriptDetails:CopySaveFileCmd"]
                         .Replace("SSH_KEY", 
                             configuration["TerraformAwsSettings:ScriptDetails:Directory"]
@@ -126,7 +126,18 @@ namespace FactorioApi.Services
                         .Replace("LOCAL_SAVE_FILE",
                             configuration["TerraformAwsSettings:ScriptDetails:Setup:SaveFile"]);
 
-                    // Start the script to stop the server
+                    // Copy the save file from server to storage first
+                    var copyResult = Bash(copySaveFileCmd);
+
+                    Console.WriteLine("CopySaveFile : "
+                        + Environment.NewLine
+                        + "--------------------"
+                        + Environment.NewLine
+                        + copyResult
+                        + Environment.NewLine
+                        + "--------------------");
+
+                    // Next start the script to stop the server
                     var result = Bash(
                         "cd "
                         + configuration["TerraformAwsSettings:ScriptDetails:Directory"]
