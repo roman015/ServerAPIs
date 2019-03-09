@@ -284,7 +284,7 @@ namespace FactorioApi.Services
                 + configuration["TerraformAwsSettings:ScriptDetails:Directory"]
                 + "; "
                 + configuration["TerraformAwsSettings:ScriptDetails:GetServerIpCmd"]
-                );
+                ).Trim();
 
             Console.WriteLine("GetServerIpAddress : "
                         + Environment.NewLine
