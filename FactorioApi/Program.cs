@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using FactorioApi.Services;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace FactorioApi
@@ -15,7 +17,26 @@ namespace FactorioApi
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var host = CreateWebHostBuilder(args).Build();
+
+            // Setup the cloud service before starting the server
+            using (var serviceScope = host.Services.CreateScope())
+            {
+                var services = serviceScope.ServiceProvider;
+
+                try
+                {
+                    var cloudAccess = services.GetRequiredService<ICloudAccess>();
+                    cloudAccess.Setup();
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred.");
+                }
+            }
+
+            host.Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)

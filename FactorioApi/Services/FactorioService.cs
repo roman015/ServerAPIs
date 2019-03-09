@@ -11,255 +11,43 @@ namespace FactorioApi.Services
 {
     public interface IFactorioService
     {
-        FactorioServiceResult StartGame();
-        FactorioServiceResult StopGame();
+        string StartGame();
+        string StopGame();
     }
 
     public class FactorioService : IFactorioService
     {
-        private static bool IsFirstTimeSetupDone = false;
-        private readonly IConfiguration configuration;
-        private static object awsLock = new object();
+        private readonly ICloudAccess CloudAccess;
 
-        public FactorioService(IConfiguration configuration)
+        public FactorioService(ICloudAccess CloudAccess)
         {
-            this.configuration = configuration;
+            this.CloudAccess = CloudAccess;
         }
-
-        // Needs to be called once only
-        public static void Setup(IConfiguration setupConfiguration)
+               
+        public string StartGame()
         {
-            if (!IsFirstTimeSetupDone)
+            if(!CloudAccess.IsServerRunning())
             {
-                SetupSshKeys(setupConfiguration);
-                SetupTfvars(setupConfiguration);
-                SetupSaveFile(setupConfiguration);
-                SetupServerBinaries(setupConfiguration);
-                SetupTerraform(setupConfiguration);
-                IsFirstTimeSetupDone = true;
+                return CloudAccess.StartServer() ? "Success" : "Failed To Start Server";
             }
             else
             {
-                Console.WriteLine("Someone is calling FactorioService::Setup Again");
+                return "Server is already running";
             }
         }
 
-        private static void SetupSshKeys(IConfiguration configuration)
+        public string StopGame()
         {
-#if USE_SSH_KEY_FROM_CONFIG
-            // Copy the private key
-            File.Copy(
-                sourceFileName:
-                    configuration["ScriptDetails:Setup:SshKeySource"],
-                destFileName:
-                    configuration["ScriptDetails:Directory"]
-                    + configuration["ScriptDetails:SshKey"],
-                overwrite:
-                    true);
-
-            // Copy the public key
-            File.Copy(
-                sourceFileName:
-                    configuration["ScriptDetails:Setup:SshKeySource"]
-                    + ".pub",
-                destFileName:
-                    configuration["ScriptDetails:Directory"]
-                    + configuration["ScriptDetails:SshKey"]
-                    + ".pub",
-                overwrite:
-                    true);
-
-            // TODO: Review if chmod is needed
-#endif
-        }
-
-        private static void SetupTfvars(IConfiguration configuration)
-        {
-            // Copy the tfvars file
-            File.Copy(
-                sourceFileName:
-                    configuration["ScriptDetails:Setup:TfvarsSource"],
-                destFileName:
-                    configuration["ScriptDetails:Directory"]
-                    + configuration["ScriptDetails:Tfvars"],
-                overwrite:
-                    true);
-        }
-
-        public static void SetupSaveFile(IConfiguration configuration)
-        {
-            // Copy the save file
-            File.Copy(
-                sourceFileName:
-                    configuration["ScriptDetails:Setup:SaveFile"],
-                destFileName:
-                    configuration["ScriptDetails:Directory"]
-                    + configuration["ScriptDetails:SaveFile"],
-                overwrite:
-                    true);
-        }
-
-        public static void SetupServerBinaries(IConfiguration configuration)
-        {
-            // TODO : Copy the factorio binary during setup
-
-            // Copy the server settings json file
-            File.Copy(
-                sourceFileName:
-                    configuration["ScriptDetails:Setup:SettingsJson"],
-                destFileName:
-                    configuration["ScriptDetails:Directory"]
-                    + configuration["ScriptDetails:SettingsJson"],
-                overwrite:
-                    true);
-        }
-
-        public static void SetupTerraform(IConfiguration configuration)
-        {
-            var result = Bash(
-                "cd "
-                + configuration["ScriptDetails:Directory"]
-                + "; "
-                + configuration["ScriptDetails:Setup:SetupTerraformCmd"]
-                );
-
-            Console.WriteLine(result);
-        }
-
-        public FactorioServiceResult StartGame()
-        {
-            if (Monitor.TryEnter(awsLock))
+            if (CloudAccess.IsServerRunning())
             {
-                try
-                {
-                    // Copy the save file
-                    File.Copy(
-                        sourceFileName:
-                            configuration["ScriptDetails:Setup:SaveFile"],
-                        destFileName:
-                            configuration["ScriptDetails:Directory"]
-                            + configuration["ScriptDetails:SaveFile"],
-                        overwrite:
-                            true);
-
-                    var LastAccessedOn = File.GetLastAccessTime(
-                            configuration["ScriptDetails:Setup:SaveFile"]
-                        );
-
-                    // Start the script
-                    var result = Bash(
-                        "cd "
-                        + configuration["ScriptDetails:Directory"]
-                        + "; "
-                        + configuration["ScriptDetails:Setup:StartServerCmd"]
-                        );
-
-                    Console.WriteLine("StartGame : "
-                        + Environment.NewLine
-                        + result);
-
-                    return new FactorioServiceResult()
-                    {
-                        ServerStatus = "Started",
-                        FactorioVersion = "UNKNOWN",
-                        LastSaveOn = LastAccessedOn
-                    };
-                }
-                finally
-                {
-                    Monitor.Exit(awsLock);
-                }
+                return CloudAccess.StopServer() ? "Success" : "Failed To Stop Server";
             }
             else
             {
-                return new FactorioServiceResult()
-                {
-                    ServerStatus = "ERROR : Another Request in progress",
-                };
+                return "Server is already stopped";
             }
         }
 
-        public FactorioServiceResult StopGame()
-        {
-            if (Monitor.TryEnter(awsLock))
-            {
-                try
-                {
-                    // Start the script to stop the server
-                    var result = Bash(
-                        "cd "
-                        + configuration["ScriptDetails:Directory"]
-                        + "; "
-                        + configuration["ScriptDetails:Setup:StopServerCmd"]
-                        );
-                    
-                    Console.WriteLine("StopGame : " 
-                        + Environment.NewLine
-                        + result);
-
-                    // Copy the save file back to storage
-                    File.Copy(
-                        sourceFileName:
-                            configuration["ScriptDetails:Directory"]
-                            + configuration["ScriptDetails:SaveFile"],
-                        destFileName:
-                            configuration["ScriptDetails:Setup:SaveFile"],                            
-                        overwrite:
-                            true);
-
-                    var LastAccessedOn = File.GetLastAccessTime(
-                            configuration["ScriptDetails:Setup:SaveFile"]
-                        );
-
-                    return new FactorioServiceResult()
-                    {
-                        ServerStatus = "Stopped",
-                        FactorioVersion = "UNKNOWN",
-                        LastSaveOn = LastAccessedOn
-                    };
-                }
-                finally
-                {
-                    Monitor.Exit(awsLock);
-                }
-            }
-            else
-            {
-                return new FactorioServiceResult()
-                {
-                    ServerStatus = "ERROR : Another Request in progress",
-                };
-            }
-        }
-
-        private static string Bash(string cmd)
-        {
-            var escapedArgs = cmd.Replace("\"", "\\\"");
-
-            var process = new Process()
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \"{escapedArgs}\"",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                }
-            };
-
-            process.Start();
-            string result = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-
-            return result;
-        }
-    }
-
-    public class FactorioServiceResult
-    {
-        public string ServerStatus { get; set; }
-        public string FactorioVersion { get; set; }
-        public DateTime LastSaveOn { get; set; }
+        
     }
 }

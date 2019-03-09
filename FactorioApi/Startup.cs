@@ -38,10 +38,26 @@ namespace FactorioApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            
+            // Cloud Solution Configuration
+            if (Configuration["CloudSolution"].Equals("DigitalOcean"))
+            {
+                services.AddScoped<ICloudAccess, DigitalOceanAccess>();
+            }
+            else if (Configuration["CloudSolution"].Equals("TerraFormAws"))
+            {
+                services.AddScoped<ICloudAccess, TerraFormAwsAccess>();
+            }
+            else
+            {
+                Console.WriteLine("No Cloud Service Configured, Terminating Server Application.");
+                System.Environment.Exit(0);
+            }
 
             // Services
             services.AddScoped<IFactorioService, FactorioService>();
-            FactorioService.Setup(Configuration);
+
+            // Config File
             services.AddSingleton<IConfiguration>(Configuration);
 
             // JWT Token Settings
@@ -66,7 +82,7 @@ namespace FactorioApi
                 {
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             // For Generating Swagger json
             services.AddSwaggerGen(config =>
