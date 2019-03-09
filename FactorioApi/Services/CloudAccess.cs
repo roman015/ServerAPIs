@@ -286,8 +286,16 @@ namespace FactorioApi.Services
                 + configuration["TerraformAwsSettings:ScriptDetails:GetServerIpCmd"]
                 );
 
+            Console.WriteLine("GetServerIpAddress : "
+                        + Environment.NewLine
+                        + "--------------------"
+                        + Environment.NewLine
+                        + cmdResult
+                        + Environment.NewLine
+                        + "--------------------");
+
             // Check if string is a valid ip address before returning it
-            if(IPAddress.TryParse(cmdResult, out result))
+            if (IPAddress.TryParse(cmdResult, out result))
             {
                 return cmdResult;
             }
