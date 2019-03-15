@@ -52,5 +52,22 @@ namespace FactorioApi.Controllers
                     "Factorio Service Did not work, something is wrong");
             }
         }
+
+        [Authorize]
+        [HttpGet("Check")]
+        public IActionResult CheckGame()
+        {
+            var result = factorioService.CheckGame();
+
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Factorio Service Did not work, something is wrong");
+            }
+        }
     }    
 }

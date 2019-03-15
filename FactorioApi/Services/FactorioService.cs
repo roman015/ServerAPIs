@@ -13,6 +13,8 @@ namespace FactorioApi.Services
     {
         string StartGame();
         string StopGame();
+
+        string CheckGame();
     }
 
     public class FactorioService : IFactorioService
@@ -48,6 +50,11 @@ namespace FactorioApi.Services
             }
         }
 
-        
+        public string CheckGame()
+        {
+            return CloudAccess.IsServerRunning() ? "Running" : "Stopped";
+        }
+
+
     }
 }
