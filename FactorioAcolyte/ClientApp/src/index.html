@@ -4,11 +4,26 @@
   <meta charset="utf-8">
   <title>Factorio Acolyte</title>
   <base href="/">
-
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" type="image/x-icon" href="acolyte.bmp">
+  <link rel="shortcut icon" type="image/x-icon" href="acolyte.bmp">  
 </head>
 <body>
-  <app-root>Loading...</app-root>
+  <app-root>    
+    <div class="background">
+      <style type="text/css">
+        .centered {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        body {
+          background-color: black;          
+        }
+      </style>
+      <img src="assets/acolyte.bmp" alt="Loading..." class="centered">
+    </div>
+  </app-root>
 </body>
 </html>

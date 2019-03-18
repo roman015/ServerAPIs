@@ -26,12 +26,29 @@
 
   <ItemGroup>
     <None Remove="ClientApp\src\assets\acolyte.bmp" />
+    <None Remove="ClientApp\src\assets\Acolyte.gif" />
+    <None Remove="ClientApp\src\assets\checkFail.png" />
+    <None Remove="ClientApp\src\assets\checking.gif" />
+    <None Remove="ClientApp\src\assets\destroying.gif" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ClientApp\src\assets\acolyte.bmp">
+    <EmbeddedResource Include="ClientApp\src\assets\acolyte.bmp">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ClientApp\src\assets\Acolyte.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ClientApp\src\assets\checkFail.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ClientApp\src\assets\checking.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ClientApp\src\assets\destroying.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
