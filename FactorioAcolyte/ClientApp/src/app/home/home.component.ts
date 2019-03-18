@@ -100,7 +100,7 @@ export class HomeComponent {
     this.isChecking = false;
     this.isWorking = false;
 
-    if (message == 'success') {
+    if (message == 'Running') {
       this.isCheckSuccess = true;
     } else {
       this.isCheckFail = true;
@@ -108,6 +108,8 @@ export class HomeComponent {
   }
 
   destroy() {
+    this.reset();
+
     console.log('DESTROY');
 
     if (typeof this.token != 'undefined' && this.token) {

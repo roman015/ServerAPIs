@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -17,8 +18,20 @@ namespace FactorioAcolyte
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            string portFlag = args
+                .Where(arg => arg.StartsWith("--port="))
+                .SingleOrDefault()
+                ?.Split("=")[1];
+            int port = portFlag != null ? Convert.ToInt32(portFlag) : 5000;
+
+            return WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .UseKestrel(options =>
+                {
+                    options.Listen(IPAddress.Loopback, port);
+                });
+        }
     }
 }
