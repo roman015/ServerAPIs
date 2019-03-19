@@ -40,11 +40,7 @@ namespace FactorioApi
             services.AddCors();
             
             // Cloud Solution Configuration
-            if (Configuration["CloudSolution"].Equals("DigitalOcean"))
-            {
-                services.AddScoped<ICloudAccess, DigitalOceanAccess>();
-            }
-            else if (Configuration["CloudSolution"].Equals("TerraFormAws"))
+            if (Configuration["CloudSolution"].Equals("TerraFormAws"))
             {
                 services.AddScoped<ICloudAccess, TerraFormAwsAccess>();
             }

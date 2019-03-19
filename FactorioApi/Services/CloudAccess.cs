@@ -19,6 +19,7 @@ namespace FactorioApi.Services
         bool IsServerRunning();
         bool StartServer();
         bool StopServer();
+        string GetServerIpAddress();
     }  
 
     public class TerraFormAwsAccess : ICloudAccess
@@ -186,6 +187,37 @@ namespace FactorioApi.Services
                 + "--------------------");
         }
 
+        public string GetServerIpAddress()
+        {
+            IPAddress result;
+
+            // Get the output variable from terraform, if present
+            var cmdResult = Bash(
+                "cd "
+                + configuration["TerraformAwsSettings:ScriptDetails:Directory"]
+                + "; "
+                + configuration["TerraformAwsSettings:ScriptDetails:GetServerIpCmd"]
+                ).Trim();
+
+            Console.WriteLine("GetServerIpAddress : "
+                        + Environment.NewLine
+                        + "--------------------"
+                        + Environment.NewLine
+                        + cmdResult
+                        + Environment.NewLine
+                        + "--------------------");
+
+            // Check if string is a valid ip address before returning it
+            if (IPAddress.TryParse(cmdResult, out result))
+            {
+                return cmdResult;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         void Setup(IConfiguration setupConfiguration)
         {
             if (!IsFirstTimeSetupDone)
@@ -283,38 +315,7 @@ namespace FactorioApi.Services
                 );
 
             Console.WriteLine(result);
-        }
-
-        string GetServerIpAddress()
-        {
-            IPAddress result;
-
-            // Get the output variable from terraform, if present
-            var cmdResult = Bash(
-                "cd "
-                + configuration["TerraformAwsSettings:ScriptDetails:Directory"]
-                + "; "
-                + configuration["TerraformAwsSettings:ScriptDetails:GetServerIpCmd"]
-                ).Trim();
-
-            Console.WriteLine("GetServerIpAddress : "
-                        + Environment.NewLine
-                        + "--------------------"
-                        + Environment.NewLine
-                        + cmdResult
-                        + Environment.NewLine
-                        + "--------------------");
-
-            // Check if string is a valid ip address before returning it
-            if (IPAddress.TryParse(cmdResult, out result))
-            {
-                return cmdResult;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        }        
 
         private string Bash(string cmd)
         {
@@ -332,67 +333,11 @@ namespace FactorioApi.Services
                 }
             };
 
-            process.Start();
+            process.Start();            
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
             return result;
-        }
-    }
-
-    // TODO : Complete this
-    public class DigitalOceanAccess : ICloudAccess
-    {
-        private readonly IConfiguration Configuration;
-        private readonly IConfiguration DOConfiguration;
-        private DigitalOceanClient DOClient;
-
-        public DigitalOceanAccess(IConfiguration Configuration)
-        {
-            this.Configuration = Configuration;
-            this.DOConfiguration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(Configuration["DigitalOceanSettings:SettingsFile"].ToString(), optional: false, reloadOnChange: true)
-                .Build();
-
-            this.DOClient = new DigitalOceanClient(DOConfiguration["ApiToken"].ToString());
-        }
-
-        public bool IsServerRunning()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Setup()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool StartServer()
-        {
-            var droplet = new Droplet
-            {
-                Name = DOConfiguration["Droplet:Name"],
-                RegionSlug = DOConfiguration["Droplet:Region"],
-                SizeSlug = DOConfiguration["Droplet:Size"],
-                ImageIdOrSlug = DOConfiguration["Droplet:Image"],
-                Backups = false,
-                Ipv6 = false,
-                PrivateNetworking = false,
-
-            };
-
-            throw new NotImplementedException();
-        }
-
-        public bool StopServer()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Teardown()
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 }
