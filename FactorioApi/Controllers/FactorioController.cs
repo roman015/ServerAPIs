@@ -27,10 +27,7 @@ namespace FactorioApi.Controllers
 
             if (result != null)
             {
-                return Ok(new
-                {
-                    result = result
-                });
+                return Ok(result);
             }
             else
             {
@@ -47,10 +44,7 @@ namespace FactorioApi.Controllers
 
             if (result != null)
             {
-                return Ok(new
-                {
-                    result = result
-                });
+                return Ok(result);
             }
             else
             {

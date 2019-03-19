@@ -11,8 +11,8 @@ namespace FactorioApi.Services
 {
     public interface IFactorioService
     {
-        string StartGame();
-        string StopGame();
+        Object StartGame();
+        Object StopGame();
         Object CheckGame();
     }
 
@@ -25,27 +25,41 @@ namespace FactorioApi.Services
             this.CloudAccess = CloudAccess;
         }
                
-        public string StartGame()
+        public Object StartGame()
         {
             if(!CloudAccess.IsServerRunning())
             {
-                return CloudAccess.StartServer() ? "Success" : "Failed To Start Server";
+                return new
+                {
+                    status = CloudAccess.StartServer() ? "Running" : "Failed",
+                    ip = CloudAccess.GetServerIpAddress()
+                }; 
             }
             else
             {
-                return "Server is already running";
+                return new
+                {
+                    status = "Running",
+                    ip = CloudAccess.GetServerIpAddress()
+                };
             }
         }
 
-        public string StopGame()
+        public Object StopGame()
         {
             if (CloudAccess.IsServerRunning())
             {
-                return CloudAccess.StopServer() ? "Success" : "Failed To Stop Server";
+                return new
+                {
+                    status = CloudAccess.StopServer() ? "Stopped" : "Failed"
+                }; 
             }
             else
             {
-                return "Server is already stopped";
+                return new
+                {
+                    status = "Stopped"
+                };
             }
         }
 
