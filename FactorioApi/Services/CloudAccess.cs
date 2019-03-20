@@ -333,7 +333,7 @@ namespace FactorioApi.Services
                 }
             };
 
-            process.Start();            
+            process.Start();       
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
