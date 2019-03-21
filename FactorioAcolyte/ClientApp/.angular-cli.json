@@ -10,7 +10,7 @@
       "assets": [
         "assets"
       ],
-      "index": "/FactorioAcolyte/index.html",
+      "index": "index.html",
       "main": "main.ts",
       "polyfills": "polyfills.ts",
       "test": "test.ts",
