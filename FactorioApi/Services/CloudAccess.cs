@@ -252,7 +252,9 @@ namespace FactorioApi.Services
                 var match = Regex.Match(downloadURL, @"(\d+)\.(\d+)\.(\d+)");
                 if (match.Success)
                 {
-                    result = match.Groups[0].ToString();
+                    result = match.Groups[0]
+                        .ToString()
+                        .Trim();
                     Console.WriteLine("GetLatestExperimentalVersionNumber : Latest Version '" + result + "'");
                 }
                 else
