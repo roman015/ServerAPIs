@@ -242,7 +242,7 @@ namespace FactorioApi.Services
                     configuration["TerraformAwsSettings:ScriptDetails:FactorioExperimentalHeadlessUrl"]);
                 HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
 
-                downloadURL = response.ResponseUri.AbsolutePath;
+                downloadURL = response.ResponseUri.ToString();
                 Uri uri = new Uri(downloadURL);
                 downloadURL = uri.AbsolutePath;
                 Console.WriteLine("RECEIVED : " + downloadURL);
