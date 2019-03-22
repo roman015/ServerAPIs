@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,10 +18,10 @@ namespace FactorioApi.Services
         void Setup();
         void Teardown();
         bool IsServerRunning();
-        bool StartServer();
+        bool StartServer(out string serverVersion);
         bool StopServer();
         string GetServerIpAddress();
-    }  
+    }
 
     public class TerraFormAwsAccess : ICloudAccess
     {
@@ -43,7 +44,7 @@ namespace FactorioApi.Services
 
         public void Setup()
         {
-            if(IsServerRunning())
+            if (IsServerRunning())
             {
                 // Destroy any existing server instances before 
                 // this application starts to manage them
@@ -54,7 +55,7 @@ namespace FactorioApi.Services
             Setup(configuration);
         }
 
-        public bool StartServer()
+        public bool StartServer(out string serverVersion)
         {
             if (Monitor.TryEnter(awsLock))
             {
@@ -74,12 +75,23 @@ namespace FactorioApi.Services
                             configuration["TerraformAwsSettings:ScriptDetails:Setup:SaveFile"]
                         );
 
+                    // Get the latest Factorio Server Version Number (if possible) to add to start script
+                    string versionFlag = "";
+                    serverVersion = GetLatestExperimentalVersionNumber();
+                    if (!String.IsNullOrWhiteSpace(serverVersion))
+                    {
+                        versionFlag = configuration["TerraformAwsSettings:ScriptDetails:Directory"]
+                            .Replace("FACTORIO_SERVER_VERSION", serverVersion);
+                    }
+
                     // Start the script
                     var result = Bash(
                         "cd "
                         + configuration["TerraformAwsSettings:ScriptDetails:Directory"]
                         + "; "
                         + configuration["TerraformAwsSettings:ScriptDetails:StartServerCmd"]
+                        + " "
+                        + versionFlag
                         );
 
                     Console.WriteLine("StartGame : "
@@ -99,6 +111,7 @@ namespace FactorioApi.Services
             }
             else
             {
+                serverVersion = "";
                 return false;
             }
         }
@@ -110,17 +123,17 @@ namespace FactorioApi.Services
                 try
                 {
                     // Check if the server is running
-                    if(!IsServerRunning())
+                    if (!IsServerRunning())
                     {
                         return false;
                     }
 
                     // Get the server ip
                     string ServerIP = GetServerIpAddress();
-                                        
+
                     // Create the copy save command
                     string copySaveFileCmd = configuration["TerraformAwsSettings:ScriptDetails:CopySaveFileCmd"]
-                        .Replace("SSH_KEY", 
+                        .Replace("SSH_KEY",
                             configuration["TerraformAwsSettings:ScriptDetails:Directory"]
                             + configuration["TerraformAwsSettings:ScriptDetails:SshKey"])
                         .Replace("SERVER_IP", ServerIP)
@@ -152,7 +165,7 @@ namespace FactorioApi.Services
                         + Environment.NewLine
                         + result
                         + Environment.NewLine
-                        + "--------------------");                    
+                        + "--------------------");
 
                     return true;
                 }
@@ -216,6 +229,43 @@ namespace FactorioApi.Services
             {
                 return null;
             }
+        }
+
+        public string GetLatestExperimentalVersionNumber()
+        {
+            string result = "";
+            String downloadURL = "";
+
+            try
+            {
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(
+                    configuration["TerraformAwsSettings:ScriptDetails:FactorioExperimentalHeadlessUrl"]);
+                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+
+                downloadURL = response.Headers.Get("Location");
+                Uri uri = new Uri(downloadURL);
+                downloadURL = uri.AbsolutePath;
+                Console.WriteLine("RECEIVED : " + downloadURL);
+
+                // Process URL Response
+                // https://dcdn.factorio.com/releases/factorio_headless_x64_0.17.17.tar.xz                
+                var match = Regex.Match(downloadURL, @"(\d+)\.(\d+)\.(\d+)");
+                if (match.Success)
+                {
+                    result = match.Groups[0].ToString();
+                    Console.WriteLine("GetLatestExperimentalVersionNumber : Latest Version '" + result + "'");
+                }
+                else
+                {
+                    Console.WriteLine("GetLatestExperimentalVersionNumber : Could not get Version number from download url!");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("GetLatestExperimentalVersionNumber : " + e.Message);
+            }
+
+            return result;
         }
 
         void Setup(IConfiguration setupConfiguration)
@@ -315,7 +365,7 @@ namespace FactorioApi.Services
                 );
 
             Console.WriteLine(result);
-        }        
+        }
 
         private string Bash(string cmd)
         {
@@ -333,11 +383,11 @@ namespace FactorioApi.Services
                 }
             };
 
-            process.Start();       
+            process.Start();
             string result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
             return result;
-        }        
+        }
     }
 }

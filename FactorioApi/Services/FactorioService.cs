@@ -31,8 +31,9 @@ namespace FactorioApi.Services
             {
                 return new
                 {
-                    status = CloudAccess.StartServer() ? "Running" : "Failed",
-                    ip = CloudAccess.GetServerIpAddress()
+                    status = CloudAccess.StartServer(out string serverVersion) ? "Running" : "Failed",
+                    ip = CloudAccess.GetServerIpAddress(),
+                    serverVersion = serverVersion
                 }; 
             }
             else
