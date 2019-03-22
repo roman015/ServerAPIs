@@ -80,7 +80,7 @@ namespace FactorioApi.Services
                     serverVersion = GetLatestExperimentalVersionNumber();
                     if (!String.IsNullOrWhiteSpace(serverVersion))
                     {
-                        versionFlag = configuration["TerraformAwsSettings:ScriptDetails:FactorioExperimentalHeadlessUrl"]
+                        versionFlag = configuration["TerraformAwsSettings:ScriptDetails:FactorioVersionFlag"]
                             .Replace("FACTORIO_SERVER_VERSION", serverVersion);
                     }
 
