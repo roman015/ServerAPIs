@@ -371,6 +371,8 @@ namespace FactorioApi.Services
 
         private string Bash(string cmd)
         {
+            Console.WriteLine("CMD|" + cmd + "|");
+
             var escapedArgs = cmd.Replace("\"", "\\\"");
 
             var process = new Process()
