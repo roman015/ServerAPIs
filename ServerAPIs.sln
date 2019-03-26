@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityAPI", "IdentityAPI\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactorioApi", "FactorioApi\FactorioApi.csproj", "{B5A4F36B-5B7B-4D68-8D2F-80AE6C60AA28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactorioAcolyte", "FactorioAcolyte\FactorioAcolyte.csproj", "{944D5BA3-B08C-4F53-8BC9-812E5CD5373F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactorioAcolyte", "FactorioAcolyte\FactorioAcolyte.csproj", "{944D5BA3-B08C-4F53-8BC9-812E5CD5373F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactorioApiConsoleApp", "FactorioApiConsoleApp\FactorioApiConsoleApp.csproj", "{14FC5B25-9A50-4B6C-B542-B8979BB7C883}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{944D5BA3-B08C-4F53-8BC9-812E5CD5373F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{944D5BA3-B08C-4F53-8BC9-812E5CD5373F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{944D5BA3-B08C-4F53-8BC9-812E5CD5373F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14FC5B25-9A50-4B6C-B542-B8979BB7C883}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14FC5B25-9A50-4B6C-B542-B8979BB7C883}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14FC5B25-9A50-4B6C-B542-B8979BB7C883}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14FC5B25-9A50-4B6C-B542-B8979BB7C883}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

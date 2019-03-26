@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FactorioApiConsoleApp": {
+      "commandName": "Project",
+      "commandLineArgs": "check "
+    }
+  }
+}
