@@ -1,106 +1,105 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using McMaster.Extensions.CommandLineUtils;
 
 namespace FactorioApiConsoleApp
 {
     class Program
     {
-        static string action = "";
-        static string otp = "";
-        static string email = "";
-        static string token = "";
-        static string response = "";
+        [Option(Description = "Values Allowed are 'check', 'start' or 'stop'")]
+        [AllowedValues(
+            "check",
+            "start",
+            "stop",
+            IgnoreCase = true
+            )]
+        [Required]
+        string Action { get; set; }
 
-        static readonly string emailFile = "email.txt";
-        static string tokenFile = "token.txt";
+        [Option(Description = "6 Digit Otp")]
+        [Range(100000, 999999)]
+        string Otp { get; set; }
 
-        static readonly string loginUrl = @"http://roman015.com/Authenticate/Login";
-        static readonly string startUrl = @"http://roman015.com/Factorio/Start";
-        static readonly string stopUrl = @"http://roman015.com/Factorio/Stop";
-        static readonly string checkUrl = @"http://roman015.com/Factorio/Check";
+        [Option(Description = "User's Email")]
+        string Email { get; set; }
 
-        static void Main(string[] args)
+        bool isEmailExtractedFromFile = false;
+        string token = "";
+        string response = "";
+
+        readonly string emailFile = "email.txt";
+        readonly string tokenFile = "token.txt";
+        readonly string dateTimeFormat = @"yyyy - MM - dd HH:mm:ss";
+        readonly string loginUrl = @"http://roman015.com/Authenticate/Login";
+        readonly string startUrl = @"http://roman015.com/Factorio/Start";
+        readonly string stopUrl = @"http://roman015.com/Factorio/Stop";
+        readonly string checkUrl = @"http://roman015.com/Factorio/Check";
+
+        public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
+
+        public void OnExecute()
         {
-            Console.WriteLine(String.Join("|", args));
-
-            // Get Arguments
-            switch (args.Length)
-            {
-                case 3:
-                    email = args[2];
-                    otp = args[1];
-                    action = args[0];
-                    break;
-                case 2:
-                    otp = args[1];
-                    action = args[0];
-                    break;
-                case 1:
-                    action = args[0];
-                    break;
-                default:
-                    DisplayHelp();
-                    Environment.Exit(-1);
-                    break;
-            }
-
             // Get email from file if needed
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(Email))
             {
                 if (!GetEmail())
                 {
                     Console.WriteLine("Enter email :");
-                    email = Console.ReadLine();
+                    Email = Console.ReadLine();
                 }
-            }
-
-            // Get otp if needed
-            if (string.IsNullOrWhiteSpace(otp))
-            {
-                Console.WriteLine("Enter otp :");
-                otp = Console.ReadLine();
-            }
-
-            // Validate action
-            switch (action.ToLower())
-            {
-                case "start":
-                case "stop":
-                case "check":
-                    break;
-                default:
-                    DisplayHelp();
-                    Environment.Exit(-1);
-                    break;
-            }           
-
-            for (int i = 0; i < otp.Length; i++)
-            {
-                if (!char.IsDigit(otp.ToCharArray()[i]))
+                else
                 {
-                    DisplayHelp();
-                    Environment.Exit(-1);
+                    isEmailExtractedFromFile = true;
                 }
             }
 
             // Validate email
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(Email))
             {
-                DisplayHelp();
+                Console.Error.WriteLine("Email Invalid, either enter email or use " + emailFile + " to store email");
                 Environment.Exit(-1);
             }
 
-            // Get token
-            if (!GetToken())
+            // Get token, either from otp or by existing stored value
+            if (string.IsNullOrWhiteSpace(Otp))
             {
-                LoginAndGetToken();
+                if (!GetToken())
+                {
+                    Console.Error.WriteLine("Otp not included and token invalid - Otp is required");
+                    Environment.Exit(-1);
+                }
+            }
+            else if (!LoginAndGetToken())
+            {
+                Console.Error.WriteLine("Could not get token");
+                Environment.Exit(-1);
             }
 
+            // Offer to store email if possible
+            if (!isEmailExtractedFromFile && !string.IsNullOrWhiteSpace(Email))
+            {
+                Console.WriteLine("Would you like to store email for later use? (y/n)");
+                switch (Console.ReadKey().Key)
+                {
+                    case ConsoleKey.Y:
+                        // Store email
+                        File.WriteAllText(emailFile, Email);
+                        break;
+                    case ConsoleKey.N:
+                        // Do nothing;
+                        break;
+                    default:
+                        Console.Error.WriteLine("Invalid response, taking no action for now");
+                        break;
+                }
+                Console.WriteLine();
+            }
 
             // Perform selected action
-            switch (action.ToLower())
+            switch (Action.ToLower())
             {
                 case "check":
                     response = AuthorizedGet(checkUrl);
@@ -118,45 +117,45 @@ namespace FactorioApiConsoleApp
             Console.WriteLine(response);
         }
 
-        static void DisplayHelp()
-        {
-            Console.WriteLine("Syntax: "
-                    + System.AppDomain.CurrentDomain.FriendlyName
-                    + " "
-                    + "<start/stop/check>"
-                    + " "
-                    + "<OTP>"
-                    + " "
-                    + "[email]");
-            Console.WriteLine("OTP - 6 digit number");
-            Console.WriteLine("email - Your registered email. Can also be stored in email.txt to save time");
-        }
-
-        static bool GetEmail()
+        bool GetEmail()
         {
             if (File.Exists(emailFile))
             {
-                email = File.ReadAllText(emailFile);
+                Email = File.ReadAllText(emailFile).Trim();
             }
 
-            return !String.IsNullOrWhiteSpace(email);
+            return !String.IsNullOrWhiteSpace(Email);
         }
 
-        static bool GetToken()
+        bool GetToken()
         {
             try
             {
                 if (File.Exists(tokenFile))
                 {
                     string[] tokenLines = File.ReadAllLines(tokenFile);
+                    bool isDateTimeValid = DateTime.TryParseExact(
+                                               tokenLines[0],
+                                               dateTimeFormat,
+                                               System.Globalization.CultureInfo.InvariantCulture,
+                                               System.Globalization.DateTimeStyles.None,
+                                               out DateTime expiry);
 
-                    if (DateTime.TryParse(tokenLines[0], out DateTime expiry)
-                        && expiry < DateTime.Now)
+                    if (isDateTimeValid)
                     {
-                        token = tokenLines[1];
+                        if (expiry > DateTime.Now)
+                        {
+                            token = tokenLines[1];
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine("Token expired, cannot use existing token");
+                            File.Delete(tokenFile);
+                        }
                     }
                     else
-                    {
+                    {                       
+                        Console.Error.WriteLine("Could not get stored token from file");
                         File.Delete(tokenFile);
                     }
                 }
@@ -175,7 +174,7 @@ namespace FactorioApiConsoleApp
             }
         }
 
-        static void LoginAndGetToken()
+        bool LoginAndGetToken()
         {
             try
             {
@@ -187,8 +186,8 @@ namespace FactorioApiConsoleApp
 
 
                 sw.WriteLine("{"
-                    + "\"Email\":" + "\"" + email + "\","
-                    + "\"Otp\":" + "\"" + otp + "\""
+                    + "\"Email\":" + "\"" + Email + "\","
+                    + "\"Otp\":" + "\"" + Otp + "\""
                     + "}");
                 sw.Flush();
 
@@ -210,24 +209,27 @@ namespace FactorioApiConsoleApp
 
                     // Store token for later use
                     var tokenWriter = File.CreateText(tokenFile);
-                    tokenWriter.WriteLine(DateTime.Now.AddMinutes(29).ToString());
+                    tokenWriter.WriteLine(DateTime.Now.AddMinutes(29).ToString(dateTimeFormat));
                     tokenWriter.WriteLine(token);
+                    tokenWriter.Close();
+
+                    return true;
 
                 }
                 else
                 {
-                    Console.WriteLine("Failed : Got response " + webResponse.StatusCode);
-                    Environment.Exit(-1);
+                    Console.Error.WriteLine("Failed : Got response " + webResponse.StatusCode);
+                    return false;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Console.Write(e.Message);
-                Environment.Exit(-1);
+                Console.Error.WriteLine(e.Message);
+                return false;
             }
         }
 
-        static string AuthorizedGet(string url)
+        string AuthorizedGet(string url)
         {
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.Headers.Add("Authorization", "Bearer " + token);
