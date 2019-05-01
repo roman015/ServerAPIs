@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactorioApi", "FactorioApi\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactorioAcolyte", "FactorioAcolyte\FactorioAcolyte.csproj", "{944D5BA3-B08C-4F53-8BC9-812E5CD5373F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FactorioApiConsoleApp", "FactorioApiConsoleApp\FactorioApiConsoleApp.csproj", "{14FC5B25-9A50-4B6C-B542-B8979BB7C883}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FactorioApiConsoleApp", "FactorioApiConsoleApp\FactorioApiConsoleApp.csproj", "{14FC5B25-9A50-4B6C-B542-B8979BB7C883}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TpLinkM7200ConsoleApp", "TpLinkM7200ConsoleApp\TpLinkM7200ConsoleApp.csproj", "{D65E394B-0735-4F06-928C-C01C517A14E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{14FC5B25-9A50-4B6C-B542-B8979BB7C883}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14FC5B25-9A50-4B6C-B542-B8979BB7C883}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14FC5B25-9A50-4B6C-B542-B8979BB7C883}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D65E394B-0735-4F06-928C-C01C517A14E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D65E394B-0735-4F06-928C-C01C517A14E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D65E394B-0735-4F06-928C-C01C517A14E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D65E394B-0735-4F06-928C-C01C517A14E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
